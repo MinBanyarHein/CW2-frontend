@@ -173,7 +173,7 @@
 								</div>
 								<br />
 								<button
-									type="submit"
+									type="button"
 									class="btn btn-primary"
 									name="btnSubmit"
 									@click="btnsubmit"
@@ -192,8 +192,9 @@
 			let sch = new Vue({
 				el: "#app",
 				data: {
-					apiUrl:
+					awsApiUrl:
 						"https://cw2-app-env.eba-ikxwuytq.eu-west-2.elasticbeanstalk.com",
+					apiUrl: "http://localhost:3000",
 					colArys: [],
 					search: "",
 					showCheckOut: false,
@@ -278,7 +279,7 @@
 									);
 								});
 						} else {
-							this.fetchLessons(); // Fetch all lessons if the search query is empty
+							// this.fetchLessons(); // Fetch all lessons if the search query is empty
 						}
 					},
 
@@ -352,10 +353,48 @@
 					availDesSort: function () {
 						this.colArys.sort((a, b) => b.avail - a.avail);
 					},
+					// Inside your Vue.js methods
 					btnsubmit: function () {
-						if (!alert("Thank you for your purchase")) {
-							this.isProduct = true;
-							this.cart = [];
+						if (this.cart.length > 0) {
+							// Step 1: Submit the order
+							const order = {
+								name: this.nme,
+								phone: this.ph,
+								lessons: this.cart,
+							};
+							fetch(this.apiUrl + "/order", {
+								method: "POST",
+								headers: {
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify(order),
+							})
+								.then(() => {
+									// Step 2: Update lesson availability
+									const lessonsToUpdate = this.cart.map((lesson) => {
+										return { _id: lesson._id, availDelta: 1 };
+									});
+									return fetch(this.apiUrl + "/updateAvailability", {
+										method: "PUT",
+										headers: {
+											"Content-Type": "application/json",
+										},
+										body: JSON.stringify(lessonsToUpdate),
+									});
+								})
+								.then(() => {
+									alert("Thank you for your purchase");
+									this.isProduct = true;
+									this.cart = [];
+								})
+								.catch((error) => {
+									console.error(
+										"There has been a problem with your fetch operation:",
+										error
+									);
+								});
+						} else {
+							alert("Your cart is empty");
 						}
 					},
 				},
