@@ -278,7 +278,6 @@
 									);
 								});
 						} else {
-							// this.fetchLessons(); // Fetch all lessons if the search query is empty
 						}
 					},
 
@@ -352,10 +351,10 @@
 					availDesSort: function () {
 						this.colArys.sort((a, b) => b.avail - a.avail);
 					},
-					// Inside your Vue.js methods
+
 					btnsubmit: function () {
 						if (this.cart.length > 0) {
-							// Step 1: Submit the order
+							//  Submit the order
 							const order = {
 								name: this.nme,
 								phone: this.ph,
@@ -369,7 +368,7 @@
 								body: JSON.stringify(order),
 							})
 								.then(() => {
-									// Step 2: Update lesson availability
+									//  Update lesson availability
 									const lessonsToUpdate = this.cart.map((lesson) => {
 										return { _id: lesson._id, availDelta: 1 };
 									});
